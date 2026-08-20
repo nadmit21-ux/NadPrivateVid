@@ -29,7 +29,7 @@
   <section id="player" class="player">
     <div class="badge"><span class="dot"></span> Accès autorisé</div>
     <h1>Lecture privée</h1>
-    <video id="video" controls playsinline preload="metadata"></video>
+    <video id="video" controls playsinline preload="auto"></video>
     <div id="status" class="status">La session de lecture reste valable temporairement sur ce navigateur.</div>
   </section>
 
@@ -94,6 +94,8 @@
     }
   });
 
+  video.addEventListener('waiting',()=>{status.textContent='Mise en mémoire tampon…';});
+  video.addEventListener('playing',()=>{status.textContent='Lecture optimisée active.';});
   video.addEventListener('error',()=>{
     status.textContent='La vidéo n’a pas pu être chargée. Vérifie la connexion puis réessaie sans actualiser la page.';
   });
