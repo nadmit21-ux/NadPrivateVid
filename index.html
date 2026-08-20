@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#070b14">
   <title>Lecture privée</title>
   <style>
-    *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#070b14;color:#eef2ff;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}body{min-height:100vh;display:grid;place-items:center;padding:22px}.card{width:min(100%,620px);background:linear-gradient(180deg,#101827,#0c1320);border:1px solid #243047;border-radius:24px;padding:28px;box-shadow:0 28px 80px #0009}.badge{display:inline-flex;gap:8px;align-items:center;padding:7px 11px;border-radius:999px;background:#172033;color:#cbd5e1;font-size:.82rem;font-weight:700}.dot{width:8px;height:8px;border-radius:50%;background:#22c55e}h1{font-size:clamp(1.65rem,6vw,2.25rem);margin:18px 0 9px;line-height:1.12}p{color:#aebbd0;line-height:1.55;margin:0 0 18px}.code{width:100%;height:64px;border-radius:16px;border:1px solid #34435e;background:#080e19;color:#fff;font-size:2rem;font-weight:800;letter-spacing:.55em;text-align:center;padding-left:.55em;outline:none}.code:focus{border-color:#8799b8;box-shadow:0 0 0 4px #64748b26}.btn{width:100%;margin-top:14px;height:54px;border:0;border-radius:14px;background:#f8fafc;color:#0f172a;font-size:1rem;font-weight:850;cursor:pointer}.btn[disabled]{opacity:.55;cursor:not-allowed}.note{margin-top:14px;padding:12px 14px;border-radius:13px;border:1px solid #26334a;background:#0a111e;color:#8492a9;font-size:.88rem;line-height:1.5}.error{display:none;margin-top:14px;padding:12px 14px;border:1px solid #7f1d1d;border-radius:13px;background:#3a1519;color:#fecaca}.player{display:none}.player video{width:100%;max-height:72vh;background:#000;border-radius:16px;display:block}.status{margin-top:12px;color:#9fb0c9;font-size:.9rem}.small{margin-top:18px;text-align:center;color:#59677d;font-size:.78rem}
+    *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#070b14;color:#eef2ff;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}body{min-height:100vh;display:grid;place-items:center;padding:22px}.card{width:min(100%,720px);background:linear-gradient(180deg,#101827,#0c1320);border:1px solid #243047;border-radius:24px;padding:28px;box-shadow:0 28px 80px #0009}.badge{display:inline-flex;gap:8px;align-items:center;padding:7px 11px;border-radius:999px;background:#172033;color:#cbd5e1;font-size:.82rem;font-weight:700}.dot{width:8px;height:8px;border-radius:50%;background:#22c55e}h1{font-size:clamp(1.65rem,6vw,2.25rem);margin:18px 0 9px;line-height:1.12}p{color:#aebbd0;line-height:1.55;margin:0 0 18px}.code{width:100%;height:64px;border-radius:16px;border:1px solid #34435e;background:#080e19;color:#fff;font-size:2rem;font-weight:800;letter-spacing:.55em;text-align:center;padding-left:.55em;outline:none}.code:focus{border-color:#8799b8;box-shadow:0 0 0 4px #64748b26}.btn{width:100%;margin-top:14px;height:54px;border:0;border-radius:14px;background:#f8fafc;color:#0f172a;font-size:1rem;font-weight:850;cursor:pointer}.btn[disabled]{opacity:.55;cursor:not-allowed}.note{margin-top:14px;padding:12px 14px;border-radius:13px;border:1px solid #26334a;background:#0a111e;color:#8492a9;font-size:.88rem;line-height:1.5}.error{display:none;margin-top:14px;padding:12px 14px;border:1px solid #7f1d1d;border-radius:13px;background:#3a1519;color:#fecaca}.player{display:none}.frameWrap{position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:16px;overflow:hidden}.frameWrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#000}.status{margin-top:12px;color:#9fb0c9;font-size:.9rem}.small{margin-top:18px;text-align:center;color:#59677d;font-size:.78rem}
   </style>
 </head>
 <body>
@@ -29,8 +29,10 @@
   <section id="player" class="player">
     <div class="badge"><span class="dot"></span> Accès autorisé</div>
     <h1>Lecture privée</h1>
-    <video id="video" controls playsinline preload="auto"></video>
-    <div id="status" class="status">La session de lecture reste valable temporairement sur ce navigateur.</div>
+    <div class="frameWrap">
+      <iframe id="drivePlayer" allow="autoplay; fullscreen" allowfullscreen referrerpolicy="no-referrer" title="Lecteur vidéo privé"></iframe>
+    </div>
+    <div id="status" class="status">Chargement du lecteur Google Drive…</div>
   </section>
 
   <div class="small">NadPrivateVid · accès privé</div>
@@ -45,18 +47,17 @@
   const input=document.getElementById('code');
   const button=document.getElementById('unlock');
   const errorBox=document.getElementById('error');
-  const video=document.getElementById('video');
+  const frame=document.getElementById('drivePlayer');
   const status=document.getElementById('status');
 
   function showPlayer(url,expiresAt){
     gate.style.display='none';
     player.style.display='block';
-    video.src=url;
+    frame.src=url;
     if(expiresAt){
       const d=new Date(expiresAt);
-      if(!Number.isNaN(d.getTime())) status.textContent='Session de lecture active jusqu’à '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})+' sur ce navigateur.';
+      if(!Number.isNaN(d.getTime())) status.textContent='Session active jusqu’à '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})+'. Le lecteur peut prendre quelques secondes à démarrer.';
     }
-    video.load();
   }
 
   try{
@@ -84,7 +85,6 @@
       if(!response.ok||!data.stream_url) throw new Error(data.error||'Impossible de vérifier le code.');
       sessionStorage.setItem('nad_private_video_session',JSON.stringify({url:data.stream_url,expiresAt:data.expires_at}));
       showPlayer(data.stream_url,data.expires_at);
-      video.play().catch(()=>{});
     }catch(err){
       errorBox.textContent=err?.message||'Erreur de connexion.';
       errorBox.style.display='block';
@@ -94,11 +94,7 @@
     }
   });
 
-  video.addEventListener('waiting',()=>{status.textContent='Mise en mémoire tampon…';});
-  video.addEventListener('playing',()=>{status.textContent='Lecture optimisée active.';});
-  video.addEventListener('error',()=>{
-    status.textContent='La vidéo n’a pas pu être chargée. Vérifie la connexion puis réessaie sans actualiser la page.';
-  });
+  frame.addEventListener('load',()=>{status.textContent='Lecteur chargé. Appuie sur lecture.';});
 })();
 </script>
 </body>
